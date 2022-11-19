@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Conversion</string>
+    <string name="hint">0.0</string>
+    <string name="initial">1.0</string>
+    <string name="swap">Swap</string>
+    <string name="rate">Rate</string>
+    <string name="details">Details</string>
+    <string name="dash">-</string>
+</resources>
