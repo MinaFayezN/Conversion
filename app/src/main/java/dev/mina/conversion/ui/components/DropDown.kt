@@ -66,7 +66,7 @@ fun Dropdown(
                 expanded = menuExpandedState,
                 onDismissRequest = { menuExpandedState = false },
                 modifier = Modifier
-                    .fillMaxWidth(0.4F)
+                    .fillMaxWidth(0.35F)
                     .background(MaterialTheme.colors.surface)
             ) {
                 rateList.forEachIndexed { index, title ->
@@ -79,7 +79,7 @@ fun Dropdown(
                         }
                     ) {
                         Text(text = title,
-                            fontSize = 24.sp,
+                            fontSize = 20.sp,
                             fontWeight = if (index == 0) Medium else Normal)
                     }
                 }

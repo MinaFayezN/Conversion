@@ -30,8 +30,7 @@ fun SwitchComponents(
 ) {
 
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.exchange))
-    val conversionRate by remember { mutableStateOf(uiState.rate) } //Loading
-    var isPlaying by remember { mutableStateOf(uiState.isLoading) } //Loading
+    var isPlaying =  uiState.isLoading //Loading
     val scope = rememberCoroutineScope() // to be removed after adding actual loading
     Row(modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceAround,
@@ -57,7 +56,7 @@ fun SwitchComponents(
             restartOnPlay = true,
         )
         Text(
-            text = "Rate = $conversionRate",
+            text = "* ${uiState.rate}",
             modifier = Modifier
                 .wrapContentSize()
                 .background(color = Color.White, shape = RoundedCornerShape(50))

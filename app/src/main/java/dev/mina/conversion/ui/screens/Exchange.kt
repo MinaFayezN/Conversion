@@ -4,42 +4,37 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.mina.conversion.ui.components.Card
-import dev.mina.conversion.ui.components.CardType
+import dev.mina.conversion.ui.components.FromCard
 import dev.mina.conversion.ui.components.SwitchComponents
-import dev.mina.conversion.ui.roundDecimalPlaces
+import dev.mina.conversion.ui.components.ToCard
 
 @Composable
 fun ExchangeScreen(
     uiState: ExchangeScreenUIState.ExchangeUIState,
     onFromSelectionChange: (String) -> Unit,
-    onFromValueChange: (String) -> Unit,
+    onFromValueChange: (Double) -> Unit,
     onToSelectionChange: (String) -> Unit,
     onSwitchClick: (String, String) -> Unit,
 ) {
-    var convertedValue by remember { mutableStateOf(uiState.rate) }
-    LaunchedEffect(uiState.from, uiState.rate) {
-        convertedValue = (uiState.from * uiState.rate).roundDecimalPlaces(places = 4)
-    }
     Box(Modifier
         .wrapContentSize(Alignment.Center)
         .padding(16.dp)) {
         Column {
-            Card(type = CardType.From,
+            FromCard(
                 rateList = uiState.fromSymbols,
                 assignedValue = uiState.from,
                 onValueChange = onFromValueChange,
                 onSelectionChange = onFromSelectionChange
             )
-            Card(type = CardType.To,
+            ToCard(
                 rateList = uiState.toSymbols,
-                assignedValue = convertedValue,
-                onValueChange = {},
-                onSelectionChange = onToSelectionChange)
+                convertedValue = uiState.to,
+                onSelectionChange = onToSelectionChange
+            )
         }
         SwitchComponents(
             uiState = uiState,
@@ -59,6 +54,7 @@ sealed class ExchangeScreenUIState {
         val selectedTo: String,
         val rate: Double,
         val from: Double,
+        val to: Double,
         val isLoading: Boolean,
     ) : ExchangeScreenUIState()
 }

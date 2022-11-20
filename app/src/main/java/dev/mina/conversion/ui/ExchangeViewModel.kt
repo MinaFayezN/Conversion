@@ -16,13 +16,12 @@ import javax.inject.Inject
 class ExchangeViewModel @Inject constructor(private val exchangeRepo: ExchangeRepo) : ViewModel() {
 
     private val exchangeViewModelState = MutableStateFlow(ExchangeViewModelState())
-
     val uiState = exchangeViewModelState
-        .map { it.toUiState() }
+        .map(ExchangeViewModelState::toUiState)
         .stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            exchangeViewModelState.value.toUiState()
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = exchangeViewModelState.value.toUiState()
         )
 
     init {
@@ -35,21 +34,37 @@ class ExchangeViewModel @Inject constructor(private val exchangeRepo: ExchangeRe
             val symbolsKeys = symbols.symbols?.keys?.toList() ?: return@launch
             exchangeViewModelState.update { it.copy(symbols = symbolsKeys) }
             val baseRate = symbolsKeys[0]
-            val latestRates = exchangeRepo.getLatestRates(base = baseRate, symbols = symbolsKeys)
-            latestRates.error?.let { error ->
-                exchangeViewModelState.update { it.copy(error = error.info) }
-                return@launch
-            }
-            exchangeViewModelState.update { it.copy(latestRates = latestRates) }
+            loadLatestRates(baseRate, symbolsKeys)
         }
     }
 
+    private suspend fun loadLatestRates(
+        baseRate: String,
+        symbolsKeys: List<String>?,
+    ) {
+        val latestRates = exchangeRepo.getLatestRates(base = baseRate, symbols = symbolsKeys)
+        latestRates.error?.let { error ->
+            exchangeViewModelState.update { it.copy(error = error.info) }
+        } ?: exchangeViewModelState.update { it.copy(latestRates = latestRates) }
+    }
+
     fun changeSelection(from: String? = null, to: String? = null) {
-        // Call Repo to get latest rates
+        exchangeViewModelState.update { it.copy(isLoading = true) }
+        viewModelScope.launch(Dispatchers.IO) {
+            from?.let {
+                loadLatestRates(baseRate = from, symbolsKeys = exchangeViewModelState.value.symbols)
+            }
+            exchangeViewModelState.update {
+                it.copy(
+                    selectedFromSymbol = from ?: it.selectedFromSymbol,
+                    selectedToSymbol = to ?: it.selectedToSymbol)
+            }
+        }
+    }
+
+    fun changeValue(newValue: Double) {
         exchangeViewModelState.update {
-            it.copy(
-                selectedFromSymbol = from ?: it.selectedFromSymbol,
-                selectedToSymbol = to ?: it.selectedToSymbol)
+            it.copy(valueToConvert = newValue)
         }
     }
 }
@@ -62,6 +77,7 @@ data class ExchangeViewModelState(
     val selectedToSymbol: String? = null,
     val latestRates: LatestRates? = null,
     val valueToConvert: Double = 1.0,
+    val isLoading: Boolean = false,
 ) {
 
     fun toUiState(): ExchangeScreenUIState {
@@ -74,6 +90,7 @@ data class ExchangeViewModelState(
                 fromSymbols.remove(selectedTo) //To prevent selecting same value in From as in To
                 toSymbols.remove(selectedFrom) //To prevent selecting same value in To as in From
                 val rate = latestRates?.rates?.get(selectedTo) ?: 1.0
+                val convertedValue = (valueToConvert * rate)
                 ExchangeScreenUIState.ExchangeUIState(
                     fromSymbols = fromSymbols,
                     selectedFrom = selectedFrom,
@@ -81,7 +98,8 @@ data class ExchangeViewModelState(
                     selectedTo = selectedTo,
                     rate = rate,
                     from = valueToConvert,
-                    isLoading = false)
+                    to = convertedValue,
+                    isLoading = isLoading)
             }.getOrElse {
                 Log.d("ExchangeViewModelState::toUiState", it.message ?: it.toString())
                 ExchangeScreenUIState.Error("Something went wrong. Please try again later")

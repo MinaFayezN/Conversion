@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
                     is ExchangeUIState -> ExchangeScreen(
                         uiState = uiState as ExchangeUIState,
                         onFromSelectionChange = { viewModel.changeSelection(from = it) },
-                        onFromValueChange = {},
+                        onFromValueChange = {viewModel.changeValue(it)},
                         onToSelectionChange = { viewModel.changeSelection(to = it) },
                         onSwitchClick = { from, to ->
                             viewModel.changeSelection(from = to, to = from)
