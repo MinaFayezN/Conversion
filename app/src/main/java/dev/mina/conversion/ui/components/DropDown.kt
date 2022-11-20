@@ -33,11 +33,10 @@ fun Dropdown(
     modifier: Modifier = Modifier,
     type: CardType,
     rateList: List<String>,
-    preselectedIndex: Int = 0,
-    onMenuItemClick: (Int) -> Unit = {},
+    onMenuItemClick: (String) -> Unit = {},
 ) {
     var menuExpandedState by remember { mutableStateOf(false) }
-    var selectedIndex by remember { mutableStateOf(preselectedIndex) }
+    var selectedIndex by remember { mutableStateOf(0) }
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -74,8 +73,10 @@ fun Dropdown(
                 rateList.forEachIndexed { index, title ->
                     DropdownMenuItem(
                         onClick = {
-                            selectedIndex = index
-                            onMenuItemClick(index)
+                            if (0 != index) {
+                                selectedIndex = index
+                                onMenuItemClick(rateList[index])
+                            }
                             menuExpandedState = false
                         }
                     ) {

@@ -1,69 +1,64 @@
 package dev.mina.conversion.ui.screens
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.rememberLottieComposition
-import dev.mina.conversion.R.raw.exchange
-import dev.mina.conversion.ui.components.CardSample
-import dev.mina.conversion.ui.theme.LightBlue
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import dev.mina.conversion.ui.components.Card
+import dev.mina.conversion.ui.components.CardType
+import dev.mina.conversion.ui.components.SwitchComponents
+import dev.mina.conversion.ui.roundDecimalPlaces
 
-@Preview
 @Composable
-fun ExchangeScreen() {
-    Box(Modifier.wrapContentSize(Alignment.Center)) {
-        CardSample()
-        Text(
-            text = "rate: 123.22",
-            modifier = Modifier
-                .wrapContentSize()
-                .align(Alignment.Center)
-                .background(color = Color.White, shape = RoundedCornerShape(50))
-                .border(border = BorderStroke(1.dp, LightBlue), shape = RoundedCornerShape(50))
-                .padding(8.dp),
-            fontSize = 16.sp,
-            color = Color.Black.copy(alpha = 0.65F),
-        )
-        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(exchange))
-        var isPlaying by remember { mutableStateOf(false) } //Loading
-        val scope = rememberCoroutineScope()
-        LottieAnimation(
-            composition = composition,
-            modifier = Modifier
-                .padding(horizontal = 12.dp)
-                .size(42.dp)
-                .align(Alignment.CenterStart)
-                .background(color = Color.White, shape = RoundedCornerShape(50))
-                .border(border = BorderStroke(1.dp, LightBlue), shape = RoundedCornerShape(50))
-                .clickable {
-                    scope.launch {
-                        //Simulating Loading
-                        isPlaying = true
-                        delay(2000)
-                        isPlaying = false
-                    }
-                }.padding(4.dp),
-            isPlaying = isPlaying,
-            restartOnPlay = true,
-            )
-
+fun ExchangeScreen(
+    uiState: ExchangeScreenUIState.ExchangeUIState,
+    onFromSelectionChange: (String) -> Unit,
+    onFromValueChange: (String) -> Unit,
+    onToSelectionChange: (String) -> Unit,
+    onSwitchClick: () -> Unit,
+) {
+    var convertedValue by remember { mutableStateOf(uiState.rate) }
+    LaunchedEffect(uiState.from, uiState.rate) {
+        convertedValue = (uiState.from * uiState.rate).roundDecimalPlaces(places = 4)
     }
+    Box(Modifier
+        .wrapContentSize(Alignment.Center)
+        .padding(16.dp)) {
+        Column {
+            Card(type = CardType.From,
+                rateList = uiState.fromSymbols,
+                assignedValue = uiState.from,
+                onValueChange = onFromValueChange,
+                onSelectionChange = onFromSelectionChange
+            )
+            Card(type = CardType.To,
+                rateList = uiState.toSymbols,
+                assignedValue = convertedValue,
+                onValueChange = {},
+                onSelectionChange = onToSelectionChange)
+        }
+        SwitchComponents(
+            isLoading = false,
+            rate = uiState.rate,
+            onSwitchCLick = onSwitchClick,
+            modifier = Modifier.align(Alignment.CenterStart)
+        )
+    }
+}
+
+sealed class ExchangeScreenUIState {
+    object Loading : ExchangeScreenUIState()
+    data class ExchangeUIState(
+        val fromSymbols: List<String>,
+        val toSymbols: List<String>,
+        val selectedFrom: String,
+        val selectedTo: String,
+        val rate: Double,
+        val from: Double,
+        val isLoading: Boolean,
+    ) : ExchangeScreenUIState()
 }
