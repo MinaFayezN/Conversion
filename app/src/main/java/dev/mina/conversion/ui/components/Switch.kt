@@ -17,21 +17,21 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import dev.mina.conversion.R
+import dev.mina.conversion.ui.screens.ExchangeScreenUIState
 import dev.mina.conversion.ui.theme.LightBlue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun SwitchComponents(
-    isLoading: Boolean,
-    rate: Double,
-    onSwitchCLick: () -> Unit,
+    uiState: ExchangeScreenUIState.ExchangeUIState,
+    onSwitchCLick: (String, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
 
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.exchange))
-    val conversionRate by remember { mutableStateOf(rate) } //Loading
-    var isPlaying by remember { mutableStateOf(isLoading) } //Loading
+    val conversionRate by remember { mutableStateOf(uiState.rate) } //Loading
+    var isPlaying by remember { mutableStateOf(uiState.isLoading) } //Loading
     val scope = rememberCoroutineScope() // to be removed after adding actual loading
     Row(modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceAround,
@@ -44,7 +44,7 @@ fun SwitchComponents(
                 .background(color = Color.White, shape = RoundedCornerShape(50))
                 .border(border = BorderStroke(1.dp, LightBlue), shape = RoundedCornerShape(50))
                 .clickable {
-                    onSwitchCLick.invoke()
+                    onSwitchCLick.invoke(uiState.selectedFrom, uiState.selectedTo)
                     scope.launch {
                         //Simulating Loading
                         isPlaying = true

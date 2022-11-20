@@ -19,7 +19,7 @@ fun ExchangeScreen(
     onFromSelectionChange: (String) -> Unit,
     onFromValueChange: (String) -> Unit,
     onToSelectionChange: (String) -> Unit,
-    onSwitchClick: () -> Unit,
+    onSwitchClick: (String, String) -> Unit,
 ) {
     var convertedValue by remember { mutableStateOf(uiState.rate) }
     LaunchedEffect(uiState.from, uiState.rate) {
@@ -42,8 +42,7 @@ fun ExchangeScreen(
                 onSelectionChange = onToSelectionChange)
         }
         SwitchComponents(
-            isLoading = false,
-            rate = uiState.rate,
+            uiState = uiState,
             onSwitchCLick = onSwitchClick,
             modifier = Modifier.align(Alignment.CenterStart)
         )
@@ -52,6 +51,7 @@ fun ExchangeScreen(
 
 sealed class ExchangeScreenUIState {
     object Loading : ExchangeScreenUIState()
+    data class Error(val message: String) : ExchangeScreenUIState()
     data class ExchangeUIState(
         val fromSymbols: List<String>,
         val toSymbols: List<String>,

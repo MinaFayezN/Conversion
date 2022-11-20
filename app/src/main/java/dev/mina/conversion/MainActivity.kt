@@ -7,8 +7,9 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import dagger.hilt.android.AndroidEntryPoint
-import dev.mina.conversion.ui.MainViewModel
+import dev.mina.conversion.ui.ExchangeViewModel
 import dev.mina.conversion.ui.screens.ExchangeScreen
+import dev.mina.conversion.ui.screens.ExchangeScreenUIState
 import dev.mina.conversion.ui.screens.ExchangeScreenUIState.ExchangeUIState
 import dev.mina.conversion.ui.screens.ExchangeScreenUIState.Loading
 import dev.mina.conversion.ui.theme.ConversionTheme
@@ -16,7 +17,7 @@ import dev.mina.conversion.ui.theme.ConversionTheme
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val viewModel: MainViewModel by viewModels()
+    private val viewModel: ExchangeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,12 +27,15 @@ class MainActivity : ComponentActivity() {
                 when (uiState) {
                     is ExchangeUIState -> ExchangeScreen(
                         uiState = uiState as ExchangeUIState,
-                        onFromSelectionChange = {},
+                        onFromSelectionChange = { viewModel.changeSelection(from = it) },
                         onFromValueChange = {},
-                        onToSelectionChange = {},
-                        onSwitchClick = {}
+                        onToSelectionChange = { viewModel.changeSelection(to = it) },
+                        onSwitchClick = { from, to ->
+                            viewModel.changeSelection(from = to, to = from)
+                        }
                     )
-                    Loading -> {}
+                    is Loading -> {}
+                    is ExchangeScreenUIState.Error -> {}
                 }
             }
         }

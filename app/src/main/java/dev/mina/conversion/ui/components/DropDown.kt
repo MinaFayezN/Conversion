@@ -36,7 +36,6 @@ fun Dropdown(
     onMenuItemClick: (String) -> Unit = {},
 ) {
     var menuExpandedState by remember { mutableStateOf(false) }
-    var selectedIndex by remember { mutableStateOf(0) }
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -51,7 +50,7 @@ fun Dropdown(
         )
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = rateList[selectedIndex],
+                text = rateList[0],
                 modifier = Modifier.padding(end = 16.dp),
                 fontSize = 28.sp,
             )
@@ -74,7 +73,6 @@ fun Dropdown(
                     DropdownMenuItem(
                         onClick = {
                             if (0 != index) {
-                                selectedIndex = index
                                 onMenuItemClick(rateList[index])
                             }
                             menuExpandedState = false
@@ -82,7 +80,7 @@ fun Dropdown(
                     ) {
                         Text(text = title,
                             fontSize = 24.sp,
-                            fontWeight = if (index == selectedIndex) Medium else Normal)
+                            fontWeight = if (index == 0) Medium else Normal)
                     }
                 }
             }
