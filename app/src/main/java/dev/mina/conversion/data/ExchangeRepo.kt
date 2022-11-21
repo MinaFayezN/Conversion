@@ -1,13 +1,22 @@
 package dev.mina.conversion.data
 
 import javax.inject.Inject
+import javax.inject.Named
 
 interface ExchangeRepo {
     suspend fun getSymbols(): Symbols
-    suspend fun getLatestRates(
-        base: String? = null,
-        symbols: List<String>? = null,
-    ): LatestRates
+    suspend fun getHistoricalRates(source: String? = null): HistoricalRates
+}
+
+class ExchangeRepoImpl @Inject constructor(
+    private val dataSource: FixerAPI,
+    @Named("CurrentDayDate")
+    private val currentDate: String,
+) : ExchangeRepo {
+    override suspend fun getSymbols(): Symbols = dataSource.getSymbols()
+
+    override suspend fun getHistoricalRates(source: String?): HistoricalRates =
+        dataSource.getHistoricalRates(currentDayDate = currentDate, source = source)
 }
 
 class ExchangeRepoMockImpl @Inject constructor() : ExchangeRepo {
@@ -183,14 +192,16 @@ class ExchangeRepoMockImpl @Inject constructor() : ExchangeRepo {
                 "ZMK" to "Zambian Kwacha (pre-2013)",
                 "ZMW" to "Zambian Kwacha",
                 "ZWL" to "Zimbabwean Dollar",
-            ),
+            )
+        )
 
-            error = null)
-
-    override suspend fun getLatestRates(base: String?, symbols: List<String>?): LatestRates =
-        LatestRates(base = "EUR",
+    override suspend fun getHistoricalRates(
+        source: String?,
+    ): HistoricalRates =
+        HistoricalRates(
+            source = "EUR",
             date = "2022-11-20",
-            rates = mapOf("AED" to 3.799944,
+            quotes = mapOf("AED" to 3.799944,
                 "AFN" to 91.040756,
                 "ALL" to 117.163172,
                 "AMD" to 408.829923,
@@ -360,6 +371,6 @@ class ExchangeRepoMockImpl @Inject constructor() : ExchangeRepo {
                 "ZMW" to 17.22742,
                 "ZWL" to 333.124586),
             success = true,
-            timestamp = 1668954723,
-            error = null)
+            timestamp = 1668954723
+        )
 }

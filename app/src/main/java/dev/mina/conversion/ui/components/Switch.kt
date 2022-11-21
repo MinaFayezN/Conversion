@@ -19,8 +19,6 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import dev.mina.conversion.R
 import dev.mina.conversion.ui.screens.ExchangeScreenUIState
 import dev.mina.conversion.ui.theme.LightBlue
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun SwitchComponents(
@@ -30,8 +28,6 @@ fun SwitchComponents(
 ) {
 
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.exchange))
-    var isPlaying =  uiState.isLoading //Loading
-    val scope = rememberCoroutineScope() // to be removed after adding actual loading
     Row(modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = CenterVertically) {
@@ -44,15 +40,9 @@ fun SwitchComponents(
                 .border(border = BorderStroke(1.dp, LightBlue), shape = RoundedCornerShape(50))
                 .clickable {
                     onSwitchCLick.invoke(uiState.selectedFrom, uiState.selectedTo)
-                    scope.launch {
-                        //Simulating Loading
-                        isPlaying = true
-                        delay(2000)
-                        isPlaying = false
-                    }
                 }
                 .padding(4.dp),
-            isPlaying = isPlaying,
+            isPlaying = uiState.isLoading,
             restartOnPlay = true,
         )
         Text(

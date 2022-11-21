@@ -5,7 +5,7 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dev.mina.conversion.data.ExchangeRepo
-import dev.mina.conversion.data.ExchangeRepoMockImpl
+import dev.mina.conversion.data.ExchangeRepoImpl
 import javax.inject.Singleton
 
 @Module
@@ -14,7 +14,7 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun converterRepo(repo: ExchangeRepoMockImpl): ExchangeRepo
+    abstract fun converterRepo(repo: ExchangeRepoImpl): ExchangeRepo
 
 }
 

@@ -1,6 +1,7 @@
 package dev.mina.conversion.ui
 
 import android.util.Log
+import dev.mina.conversion.data.HistoricalRates
 import dev.mina.conversion.ui.screens.ExchangeScreenUIState
 import io.mockk.every
 import io.mockk.mockkConstructor
@@ -99,6 +100,38 @@ class ExchangeViewModelStateTest {
         assert(castedResult.fromSymbols[0] == "AED")
         assert(castedResult.selectedTo == "USD")
         assert(castedResult.toSymbols[0] == "USD")
+    }
+
+    @Test
+    fun checkUiState_HasValidData_WhenSymbolsIsNotnullNorEmptyAndValueSent() {
+        val viewModelState = ExchangeViewModelState(
+            symbols = listOf("EGP", "AED", "USD", "EUR"),
+            valueToConvert = 2.0,
+            historicalRates = HistoricalRates(quotes = mapOf("EGPAED" to 12.09))
+        )
+        val result = viewModelState.toUiState()
+        assert(result is ExchangeScreenUIState.ExchangeUIState)
+        val castedResult = result as ExchangeScreenUIState.ExchangeUIState
+        assert(castedResult.from == 2.0)
+        assert(castedResult.rate == 12.09)
+        assert(castedResult.to == 2.0 * 12.09)
+    }
+
+    @Test
+    fun checkUiState_HasValidData_WhenSymbolsIsNotnullNorEmptyAndValueSentButNoRate() {
+        val viewModelState = ExchangeViewModelState(
+            symbols = listOf("EGP", "AED", "USD", "EUR"),
+            valueToConvert = 2.0,
+            selectedFromSymbol = "AED",
+            selectedToSymbol = "USD",
+            historicalRates = HistoricalRates(quotes = mapOf("AED" to 12.09))
+        )
+        val result = viewModelState.toUiState()
+        assert(result is ExchangeScreenUIState.ExchangeUIState)
+        val castedResult = result as ExchangeScreenUIState.ExchangeUIState
+        assert(castedResult.from == 2.0)
+        assert(castedResult.rate == 1.0)
+        assert(castedResult.to == 2.0 * 1.0)
     }
 
 }

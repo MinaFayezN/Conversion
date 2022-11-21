@@ -64,7 +64,9 @@ fun FromCard(
                 onValueChange = { newText ->
                     value =
                         newText
-                            .filter { it.isDigit() || (it == '.' && newText.toDoubleOrNull() != null) }
+                            .filterIndexed { index, it ->
+                                it.isDigit() || (it == '.' && newText.indexOf('.') == index)
+                            }
                             .take(9)
                     onValueChange.invoke(value.toDoubleOrNull() ?: 0.0)
                 },

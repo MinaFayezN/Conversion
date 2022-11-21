@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
 
 android {
@@ -79,7 +80,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
     // Interceptor
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.3'
+    implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.9'
 
     // lottie
     implementation "com.airbnb.android:lottie-compose:$lottie_version"
