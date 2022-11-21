@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
@@ -28,7 +30,7 @@ fun ExchangeScreen(
     onSwitchClick: (String, String) -> Unit,
     onDetailsClick: (String, String, Double) -> Unit,
 ) {
-    Column {
+    Column(Modifier.verticalScroll(rememberScrollState())) {
 
         Box(Modifier
             .wrapContentSize(Alignment.Center)
