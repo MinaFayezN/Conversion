@@ -7,36 +7,47 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import dagger.hilt.android.AndroidEntryPoint
+import dev.mina.conversion.ui.DetailsViewModel
 import dev.mina.conversion.ui.ExchangeViewModel
+import dev.mina.conversion.ui.screens.DetailsScreen
+import dev.mina.conversion.ui.screens.DetailsScreenUIState
 import dev.mina.conversion.ui.screens.ExchangeScreen
 import dev.mina.conversion.ui.screens.ExchangeScreenUIState
-import dev.mina.conversion.ui.screens.ExchangeScreenUIState.ExchangeUIState
-import dev.mina.conversion.ui.screens.ExchangeScreenUIState.Loading
 import dev.mina.conversion.ui.theme.ConversionTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val viewModel: ExchangeViewModel by viewModels()
+    private val exchangeViewModel: ExchangeViewModel by viewModels()
+    private val detailsViewModel: DetailsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             ConversionTheme {
-                val uiState by viewModel.uiState.collectAsState()
-                when (uiState) {
-                    is ExchangeUIState -> ExchangeScreen(
-                        uiState = uiState as ExchangeUIState,
-                        onFromSelectionChange = { viewModel.changeSelection(from = it) },
-                        onFromValueChange = {viewModel.changeValue(it)},
-                        onToSelectionChange = { viewModel.changeSelection(to = it) },
+                val exchangeUiState by exchangeViewModel.uiState.collectAsState()
+                when (exchangeUiState) {
+                    is ExchangeScreenUIState.ExchangeUIState -> ExchangeScreen(
+                        uiState = exchangeUiState as ExchangeScreenUIState.ExchangeUIState,
+                        onFromSelectionChange = { exchangeViewModel.changeSelection(from = it) },
+                        onFromValueChange = { exchangeViewModel.changeValue(it) },
+                        onToSelectionChange = { exchangeViewModel.changeSelection(to = it) },
                         onSwitchClick = { from, to ->
-                            viewModel.changeSelection(from = to, to = from)
+                            exchangeViewModel.changeSelection(from = to, to = from)
                         }
                     )
-                    is Loading -> {}
+                    is ExchangeScreenUIState.Loading -> {}
                     is ExchangeScreenUIState.Error -> {}
                 }
+                val uiState by detailsViewModel.uiState.collectAsState()
+                when (uiState) {
+                    is DetailsScreenUIState.DetailsUIState -> DetailsScreen(
+                        uiState = uiState as DetailsScreenUIState.DetailsUIState,
+                    )
+                    is DetailsScreenUIState.Loading -> {}
+                    is DetailsScreenUIState.Error -> {}
+                }
+
             }
         }
     }

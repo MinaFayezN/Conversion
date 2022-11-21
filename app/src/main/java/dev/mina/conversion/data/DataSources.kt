@@ -21,11 +21,11 @@ interface FixerAPI {
     @GET("timeframe")
     suspend fun getTimeFrameRates(
         @Query("start_date")
-        prev3DaysDate: String? = null,
+        pastThreeDaysDate: String? = null,
         @Query("end_date")
         currentDayDate: String? = null,
         @Query("source")
-        base: String? = null,
+        source: String? = null,
     ): TimeFrameRates
 
 
