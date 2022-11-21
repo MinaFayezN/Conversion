@@ -1,13 +1,15 @@
- <img src="images/logo.png" alt="ArchiTecture logo"/>
+ <img src="images/logo.png" alt="App Logo"/>
 
 
 The goal of this project is to demonstrate how we can use most of recent tools and technologies to create a simple app to convert money between currencies, following the best development practices. It's our interpretation and adaptation of the official [architecture](https://developer.android.com/topic/architecture) guidelines provided by Google.
+
+<img src="images/Mockup.png" alt="Mobile Mockup"/>
 
 ## Clean architecture with 2 main layers
 - Data (for API and caching)
 - AndroidApp (for UI logic, with MVVM)
 
- <img src="images/mad-arch-overview.png" alt="ArchiTecture logo"/>
+ <img src="images/mad-arch-overview.png" alt="Architecture"/>
 I didn't use Domain layer as it's not needed here
 
 
