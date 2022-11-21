@@ -40,6 +40,7 @@ fun HistoricItem(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(4.dp)
             .wrapContentHeight()
             .background(shape = RoundedCornerShape(20.dp), color = LightGray02)
             .border(0.5.dp,
@@ -48,10 +49,10 @@ fun HistoricItem(
     ) {
         Text(
             modifier = Modifier
-                .padding(12.dp)
+                .padding(4.dp)
                 .fillMaxWidth(),
             text = date,
-            fontSize = 26.sp,
+            fontSize = 20.sp,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold,
             fontFamily = FontFamily.SansSerif,
@@ -60,25 +61,25 @@ fun HistoricItem(
             verticalAlignment = Alignment.CenterVertically) {
             Text(
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(4.dp)
                     .weight(1F),
                 text = "$base\n$baseValue",
                 textAlign = TextAlign.Center,
-                fontSize = 24.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = FontFamily.SansSerif,
             )
             Icon(
-                modifier = Modifier.size(32.dp),
+                modifier = Modifier.size(24.dp),
                 painter = painterResource(id = dev.mina.conversion.R.drawable.ic_arrow),
                 contentDescription = "$base to $target")
             Text(
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(4.dp)
                     .weight(1F),
                 text = "$target\n$convertedValue",
                 textAlign = TextAlign.Center,
-                fontSize = 24.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = FontFamily.SansSerif,
             )

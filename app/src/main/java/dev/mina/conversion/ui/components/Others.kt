@@ -37,10 +37,11 @@ fun OthersItems(
                     .background(shape = RoundedCornerShape(20.dp), color = LightGray02)
                     .border(0.5.dp,
                         MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
-                        RoundedCornerShape(20.dp)),
-                text = it,
-                fontSize = if (it.contains("Date:")) 26.sp else 24.sp,
-                textAlign = TextAlign.Start,
+                        RoundedCornerShape(20.dp))
+                    .padding(4.dp),
+                text = if (it.contains("Date:")) it else it.substring(3),
+                fontSize = if (it.contains("Date:")) 24.sp else 20.sp,
+                textAlign = if (it.contains("Date:")) TextAlign.Start else TextAlign.Center,
                 fontWeight = if (it.contains("Date:")) FontWeight.Bold else FontWeight.Medium,
                 fontFamily = FontFamily.SansSerif,
             )

@@ -8,7 +8,9 @@ import dev.mina.conversion.data.DetailsRepo
 import dev.mina.conversion.ui.screens.DetailsScreenUIState
 import dev.mina.conversion.ui.screens.DetailsScreenUIState.DetailsUIState
 import dev.mina.conversion.ui.screens.HistoricItemUistate
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,18 +25,21 @@ class DetailsViewModel @Inject constructor(private val detailsRepo: DetailsRepo)
             initialValue = detailsViewModelState.value.toUiState()
         )
 
-    private suspend fun loadHistoricalRates(
+    fun loadHistoricalRates(
         from: String,
         to: String,
         value: Double,
     ) {
-        val timeFrameRates = detailsRepo.getTimeFrameRates(source = from)
-        detailsViewModelState.update {
-            it.copy(
-                rates = timeFrameRates.quotes,
-                selectedFromSymbol = from,
-                selectedToSymbol = to,
-                valueToConvert = value)
+        detailsViewModelState.update { it.copy(rates = null) }
+        viewModelScope.launch(Dispatchers.IO) {
+            val timeFrameRates = detailsRepo.getTimeFrameRates(source = from)
+            detailsViewModelState.update {
+                it.copy(
+                    rates = timeFrameRates.quotes,
+                    selectedFromSymbol = from,
+                    selectedToSymbol = to,
+                    valueToConvert = value)
+            }
         }
     }
 
@@ -57,7 +62,7 @@ data class DetailsViewModelState(
                         fromText = selectedFromSymbol,
                         fromRate = valueToConvert.toString(),
                         toText = selectedToSymbol,
-                        toRate = (symbolsList[it]?.get(selectedToSymbol) ?: 1.0).toDouble()
+                        toRate = (symbolsList[it]?.get("$selectedFromSymbol$selectedToSymbol") ?: 1.0).toDouble()
                             .times(valueToConvert).toString()
                     )
                 }

@@ -14,7 +14,7 @@ fun DetailsScreen(uiState: DetailsScreenUIState.DetailsUIState) {
             .weight(1F)) {
             uiState.historicalItems.forEach {
                 HistoricItem(date = it.date ?: "",
-                    base = it.fromRate ?: "",
+                    base = it.fromText ?: "",
                     baseValue = it.fromRate ?: "1.0",
                     target = it.toText ?: "",
                     convertedValue = it.toRate ?: "1.0")

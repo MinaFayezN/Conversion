@@ -6,6 +6,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import dev.mina.conversion.ui.DetailsViewModel
 import dev.mina.conversion.ui.ExchangeViewModel
@@ -25,28 +28,43 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ConversionTheme {
+                val navController = rememberNavController()
                 val exchangeUiState by exchangeViewModel.uiState.collectAsState()
-                when (exchangeUiState) {
-                    is ExchangeScreenUIState.ExchangeUIState -> ExchangeScreen(
-                        uiState = exchangeUiState as ExchangeScreenUIState.ExchangeUIState,
-                        onFromSelectionChange = { exchangeViewModel.changeSelection(from = it) },
-                        onFromValueChange = { exchangeViewModel.changeValue(it) },
-                        onToSelectionChange = { exchangeViewModel.changeSelection(to = it) },
-                        onSwitchClick = { from, to ->
-                            exchangeViewModel.changeSelection(from = to, to = from)
-                        }
-                    )
-                    is ExchangeScreenUIState.Loading -> {}
-                    is ExchangeScreenUIState.Error -> {}
-                }
                 val uiState by detailsViewModel.uiState.collectAsState()
-                when (uiState) {
-                    is DetailsScreenUIState.DetailsUIState -> DetailsScreen(
-                        uiState = uiState as DetailsScreenUIState.DetailsUIState,
-                    )
-                    is DetailsScreenUIState.Loading -> {}
-                    is DetailsScreenUIState.Error -> {}
+                NavHost(navController = navController, startDestination = "exchange") {
+                    composable("exchange") {
+                        when (exchangeUiState) {
+                            is ExchangeScreenUIState.ExchangeUIState -> ExchangeScreen(
+                                uiState = exchangeUiState as ExchangeScreenUIState.ExchangeUIState,
+                                onFromSelectionChange = { exchangeViewModel.changeSelection(from = it) },
+                                onFromValueChange = { exchangeViewModel.changeValue(it) },
+                                onToSelectionChange = { exchangeViewModel.changeSelection(to = it) },
+                                onSwitchClick = { from, to ->
+                                    exchangeViewModel.changeSelection(from = to, to = from)
+                                }, onDetailsClick = { from, to, fromValue ->
+                                    detailsViewModel.loadHistoricalRates(from,to,fromValue)
+                                    navController.navigate("details")
+                                }
+                            )
+                            is ExchangeScreenUIState.Loading -> {/*TODO*/
+                            }
+                            is ExchangeScreenUIState.Error -> {/*TODO*/
+                            }
+                        }
+                    }
+                    composable("details") {
+                        when (uiState) {
+                            is DetailsScreenUIState.DetailsUIState -> DetailsScreen(
+                                uiState = uiState as DetailsScreenUIState.DetailsUIState,
+                            )
+                            is DetailsScreenUIState.Loading -> {/*TODO*/
+                            }
+                            is DetailsScreenUIState.Error -> {/*TODO*/
+                            }
+                        }
+                    }
                 }
+
 
             }
         }

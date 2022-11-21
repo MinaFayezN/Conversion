@@ -1,19 +1,26 @@
 package dev.mina.conversion.di
 
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.mina.conversion.BuildConfig
 import dev.mina.conversion.data.FixerAPI
+import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -72,14 +79,58 @@ class DataSourceModule {
 
     @Singleton
     @Provides
+    @Named("CacheInterceptor")
+    fun providesCacheInterceptor(@ApplicationContext context: Context) = Interceptor { chain ->
+        var request = chain.request()
+        request =
+            if (isNetworkAvailable(context))
+                request.newBuilder()
+                    .header("Cache-Control",
+                        "public, max-age=" + TimeUnit.DAYS.toSeconds(1))
+                    .build()
+            else
+                request.newBuilder()
+                    .header("Cache-Control",
+                        "public, only-if-cached, max-stale=" + TimeUnit.DAYS.toSeconds(2))
+                    .build()
+        chain.proceed(request)
+    }
+
+    private fun isNetworkAvailable(context: Context): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val nw = connectivityManager.activeNetwork ?: return false
+        val actNw = connectivityManager.getNetworkCapabilities(nw) ?: return false
+        return when {
+            actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+            actNw.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) -> true
+            else -> false
+        }
+    }
+
+    @Singleton
+    @Provides
+    @Named("Cache")
+    fun provideCache(
+        @ApplicationContext context: Context,
+    ): Cache = Cache(context.cacheDir, (5 * 1024 * 1024).toLong())
+
+    @Singleton
+    @Provides
     @Named("Client")
     fun providesOkHttpClient(
+        @Named("Cache") cache: Cache,
         @Named("LoggingInterceptor") loggingInterceptor: HttpLoggingInterceptor,
         @Named("KeyInterceptor") keyInterceptor: Interceptor,
-    ) = OkHttpClient
+        @Named("CacheInterceptor") cacheInterceptor: Interceptor,
+        ) = OkHttpClient
         .Builder()
         .addInterceptor(loggingInterceptor)
         .addInterceptor(keyInterceptor)
+        .addInterceptor(cacheInterceptor)
+        .cache(cache)
         .build()
 
 
@@ -105,5 +156,5 @@ class DataSourceModule {
 
 enum class RequiredDay(val value: Int) {
     CURRENT(0),
-    PREVIOUS(-3)
+    PREVIOUS(-2)
 }
